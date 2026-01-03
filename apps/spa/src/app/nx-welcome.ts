@@ -954,5 +954,6 @@ export class NxWelcome implements OnInit {
 
   ngOnInit(): void {
     this.http.get('/api').subscribe(console.warn);
+    this.http.post('/api', { value: 'test string' }).subscribe(console.warn);
   }
 }
