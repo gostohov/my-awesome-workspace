@@ -44,3 +44,5 @@ Thumbs.db
 .angular
 
 apps/resource-server/generated/prisma
+
+.forgejo/*
