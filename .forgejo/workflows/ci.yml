@@ -24,5 +24,33 @@ jobs:
       - name: Build spa
         run: npx nx build spa
 
+      - name: Start infra (docker compose)
+        working-directory: docker
+        run: docker compose up -d
+
+      - name: Wait for Postgres
+        run: |
+          for i in $(seq 1 60); do
+            if docker ps --format '{{.Names}}' | grep -qi postgres; then
+              if docker exec $(docker ps --format '{{.Names}}' | grep -i postgres | head -n1) pg_isready -U postgres >/dev/null 2>&1; then
+                echo "Postgres is ready"
+                exit 0
+              fi
+            fi
+            sleep 2
+          done
+          echo "Postgres is not ready"
+          docker ps
+          docker logs $(docker ps --format '{{.Names}}' | grep -i postgres | head -n1 || true) || true
+          exit 1
+
+      - name: Prisma generate
+        run: npx prisma generate
+
       - name: Build resource-server
         run: npx nx build resource-server
+      
+      - name: Stop infra
+        if: always()
+        working-directory: docker
+        run: docker compose down -v
