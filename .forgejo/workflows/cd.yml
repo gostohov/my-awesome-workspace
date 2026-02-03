@@ -22,7 +22,7 @@ jobs:
         run: |
           docker build \
             -t ${{ secrets.REGISTRY_HOST }}/demo/hello:latest \
-            .
+            ./demo
 
       - name: Push Docker image
         run: |
