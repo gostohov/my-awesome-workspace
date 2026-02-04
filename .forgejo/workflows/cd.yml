@@ -4,13 +4,16 @@ on:
   workflow_dispatch:
 
 jobs:
+  checkout:
+    runs-on: node
+
+    steps: Checkout repository
+    uses: actions/checkout@v4
+
   build-and-push:
-    runs-on: docker
+    runs-on: docker-cli
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Login to Docker registry
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login \
@@ -18,11 +21,11 @@ jobs:
             -u "${{ secrets.REGISTRY_USERNAME }}" \
             --password-stdin
 
-      # - name: Build Docker image
-      #   run: |
-      #     docker build \
-      #       -t ${{ secrets.REGISTRY_HOST }}/demo/hello:latest \
-      #       ./demo
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ secrets.REGISTRY_HOST }}/demo/hello:latest \
+            ./demo
 
       # - name: Push Docker image
       #   run: |
