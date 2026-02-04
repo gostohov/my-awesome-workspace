@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: trixie
+    runs-on: bookworm
 
     steps:
       - name: Checkout repository
