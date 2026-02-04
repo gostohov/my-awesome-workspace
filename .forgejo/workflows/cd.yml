@@ -12,7 +12,6 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-act-2404
-    needs: checkout
     steps:
       - name: Login to Docker registry
         run: |
