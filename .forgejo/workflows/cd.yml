@@ -18,6 +18,10 @@ jobs:
             -u "${{ secrets.REGISTRY_USERNAME }}" \
             --password-stdin
 
+       - name: Debug docker
+        run: |
+          docker -v
+
       # - name: Build Docker image
       #   run: |
       #     docker build \
