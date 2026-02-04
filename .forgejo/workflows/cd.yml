@@ -8,8 +8,8 @@ jobs:
     runs-on: docker
 
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Login to Docker registry
         run: |
@@ -17,14 +17,6 @@ jobs:
             ${{ secrets.REGISTRY_HOST }} \
             -u "${{ secrets.REGISTRY_USERNAME }}" \
             --password-stdin
-
-      - name: Debug docker
-        run: |
-          docker -v
-
-      - name: Log docker.json
-        run: |
-          cat /root/.docker/config.json
 
       # - name: Build Docker image
       #   run: |
