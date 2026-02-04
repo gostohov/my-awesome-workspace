@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-2404
+    runs-on: trixie
 
     steps:
       - name: Checkout repository
