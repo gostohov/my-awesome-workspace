@@ -4,14 +4,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  checkout:
-    runs-on: node
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  # checkout:
+  #   runs-on: node
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
   build-and-push:
-    runs-on: docker-cli
+    runs-on: ubuntu-act-2404
     needs: checkout
     steps:
       - name: Login to Docker registry
