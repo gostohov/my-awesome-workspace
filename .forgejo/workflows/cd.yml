@@ -18,7 +18,7 @@ jobs:
             -u "${{ secrets.REGISTRY_USERNAME }}" \
             --password-stdin
 
-       - name: Debug docker
+      - name: Debug docker
         run: |
           docker -v
 
