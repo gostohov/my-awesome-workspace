@@ -23,6 +23,6 @@ jobs:
             -t ${{ secrets.REGISTRY_HOST }}/demo/hello:latest \
             ./demo
 
-      # - name: Push Docker image
-      #   run: |
-      #     docker push ${{ secrets.REGISTRY_HOST }}/demo/hello:latest
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.REGISTRY_HOST }}/demo/hello:latest
