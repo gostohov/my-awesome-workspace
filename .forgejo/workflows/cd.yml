@@ -4,15 +4,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  # checkout:
-  #   runs-on: node
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-
   build-and-push:
     runs-on: ubuntu-act-2404
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Login to Docker registry
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login \
