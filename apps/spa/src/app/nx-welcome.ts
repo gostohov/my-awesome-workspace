@@ -953,7 +953,7 @@ export class NxWelcome implements OnInit {
   private readonly http = inject(HttpClient);
 
   ngOnInit(): void {
-    this.http.get('/api').subscribe(console.warn);
-    this.http.post('/api', { value: 'test string' }).subscribe(console.warn);
+    this.http.get('/api/').subscribe(console.warn);
+    this.http.post('/api/', { value: 'test string' }).subscribe(console.warn);
   }
 }
