@@ -506,6 +506,8 @@ import { HttpClient } from '@angular/common/http';
         }
       }
     </style>
+    <div id="hello-response">{{helloResponse$ | async | json}}</div>
+    <div id="test-post-response">{{testPostResponse$ | async | json}}</div>
     <div class="wrapper">
       <div class="container">
         <!--  WELCOME  -->
@@ -949,11 +951,8 @@ nx g &#64;nx/angular:component ui/src/lib/button</pre>
   styles: [],
   encapsulation: ViewEncapsulation.None,
 })
-export class NxWelcome implements OnInit {
+export class NxWelcome {
   private readonly http = inject(HttpClient);
-
-  ngOnInit(): void {
-    this.http.get('/api/').subscribe(console.warn);
-    this.http.post('/api/', { value: 'test string' }).subscribe(console.warn);
-  }
+  helloResponse$ = this.http.get('/api/');
+  testPostResponse$ = this.http.post('/api/', { value: 'test string' });
 }

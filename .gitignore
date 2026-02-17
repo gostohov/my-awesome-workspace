@@ -44,3 +44,4 @@ Thumbs.db
 .angular
 
 apps/resource-server/generated/prisma
+apps/spa/e2e/setup/.auth/*
