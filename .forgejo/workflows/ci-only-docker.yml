@@ -25,11 +25,7 @@ jobs:
           
           # Удаляем контейнеры и volume
           docker compose down -v --remove-orphans
-
-          # Принудительно пересобираем образ postgres
-          docker compose build --no-cache postgres
-          
-          docker compose up -d
+          docker compose up
 
       - name: Wait for Keycloak to be healthy
         shell: bash
@@ -65,7 +61,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm i --verbose
+          npm i
           npx nx e2e spa
 
       - name: Docker compose down
