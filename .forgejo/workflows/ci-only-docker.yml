@@ -69,7 +69,7 @@ jobs:
       - name: Installing npm deps
         run: |
           set -euo pipefail
-          npm ci
+          npm ci --timing
 
       # - name: Installing playwright Chromium browser
       #   run: |
