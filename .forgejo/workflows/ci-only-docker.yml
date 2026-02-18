@@ -17,7 +17,7 @@ jobs:
         run: |
           docker network inspect traefik-network >/dev/null 2>&1 || docker network create traefik-network
 
-      - name: Docker compose up (traefik, postgres, flyway, keycloak, spa, resource-server)
+      - name: Docker compose up (traefik, postgres, flyway, keycloak)
         shell: bash
         run: |
           set -euo pipefail
@@ -29,7 +29,7 @@ jobs:
           # Принудительно пересобираем образ postgres
           docker compose build --no-cache postgres
           
-          docker compose up postgres
+          docker compose up -d
 
       - name: Wait for Keycloak to be healthy
         shell: bash
@@ -65,6 +65,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          npm i --verbose
           npx nx e2e spa
 
       - name: Docker compose down
@@ -72,4 +73,4 @@ jobs:
         shell: bash
         run: |
           cd docker
-          docker compose -p my-awesome-workspace down -v
+          docker compose down -v --remove-orphans
