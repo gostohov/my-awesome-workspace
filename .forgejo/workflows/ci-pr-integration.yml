@@ -1,0 +1,78 @@
+name: Build SPA + Resource Server (MR)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-act-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build spa
+        run: npx nx build spa
+
+      - name: Build resource-server
+        run: npx nx build resource-server
+
+      # Важно: у тебя в compose external network, в CI ее надо создать
+      - name: Ensure external docker network exists
+        shell: bash
+        run: |
+          docker network inspect traefik-network >/dev/null 2>&1 || docker network create traefik-network
+
+      - name: Docker compose up (traefik, postgres, flyway, keycloak, spa, resource-server)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd docker
+          docker compose -p my-awesome-workspace up -d
+          docker compose -p my-awesome-workspace ps
+
+      - name: Wait for Keycloak to be healthy
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd docker
+
+          KC_ID="$(docker compose -p my-awesome-workspace ps -q keycloak)"
+          if [ -z "$KC_ID" ]; then
+            echo "Keycloak container not found"
+            docker compose -p my-awesome-workspace ps
+            exit 1
+          fi
+
+          echo "Keycloak container id: $KC_ID"
+          echo "Waiting for health=healthy..."
+
+          for i in $(seq 1 90); do
+            status="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' "$KC_ID" || true)"
+            if [ "$status" = "healthy" ]; then
+              echo "Keycloak is healthy"
+              exit 0
+            fi
+            echo "Attempt $i: $status"
+            sleep 2
+          done
+
+          echo "Keycloak did not become healthy in time"
+          docker logs "$KC_ID" || true
+          exit 1
+
+      - name: Run SPA e2e
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx nx e2e spa
+
+      - name: Docker compose down
+        if: always()
+        shell: bash
+        run: |
+          cd docker
+          docker compose -p my-awesome-workspace down -v
