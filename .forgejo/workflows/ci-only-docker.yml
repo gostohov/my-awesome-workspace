@@ -22,8 +22,8 @@ jobs:
         run: |
           set -euo pipefail
           cd docker
-          docker compose -p my-awesome-workspace up -d
-          docker compose -p my-awesome-workspace ps
+          docker compose down -v
+          docker compose up postgres
 
       - name: Wait for Keycloak to be healthy
         shell: bash
