@@ -9,7 +9,11 @@ name: 'my-awesome-workspace'
 
 services:
   traefik:
-    image: ${TRAEFIK_IMAGE_TAG}
+    build:
+      context: ./traefik
+      args:
+        TRAEFIK_IMAGE_TAG: ${TRAEFIK_IMAGE_TAG}
+    image: my-traefik-with-dynamic
     command:
       - "--log.level=${TRAEFIK_LOG_LEVEL}"
       - "--api.dashboard=true"
@@ -30,7 +34,6 @@ services:
       - "--global.sendanonymoususage=false"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/dynamic:/etc/traefik/dynamic:ro
     networks:
       - traefik-network
     ports:
@@ -77,15 +80,15 @@ services:
     restart: unless-stopped
 
   flyway:
-    image: flyway/flyway:10
+    build:
+      context: ./flyway
+    image: my-flyway-with-migrations
     command: >
       -url=jdbc:postgresql://postgres:5432/${MY_AWESOME_WORKSPACE_DB}
       -user=${MY_AWESOME_WORKSPACE_USER}
       -password=${MY_AWESOME_WORKSPACE_DB_PASSWORD}
-      -locations=filesystem:/flyway/sql    
+      -locations=filesystem:/flyway/sql
       migrate
-    volumes:
-      - ./migrations:/flyway/sql
     networks:
       - traefik-network
     depends_on:
@@ -93,7 +96,11 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: ${KEYCLOAK_IMAGE_TAG}
+    build:
+      context: ./keycloak
+      args:
+        KEYCLOAK_IMAGE_TAG: ${KEYCLOAK_IMAGE_TAG}
+    image: my-keycloak-with-realms
     command:
       - start
       - --import-realm
@@ -110,17 +117,15 @@ services:
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
       PROXY_ADDRESS_FORWARDING: "true"
-    volumes:
-      - ./realms:/opt/keycloak/data/import
     networks:
       - traefik-network
     healthcheck:
       test:
-      - "CMD-SHELL"
-      - |
-        exec 3<>/dev/tcp/localhost/9000 &&
-        echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
-        cat <&3 | tee /tmp/healthcheck.log | grep -q '200 OK'
+        - "CMD-SHELL"
+        - |
+          exec 3<>/dev/tcp/localhost/9000 &&
+          echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          cat <&3 | tee /tmp/healthcheck.log | grep -q '200 OK'
       interval: 10s
       timeout: 5s
       retries: 3
@@ -140,4 +145,3 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
