@@ -55,7 +55,16 @@ jobs:
           echo "Keycloak did not become healthy in time"
           docker logs "$KC_ID" || true
           exit 1
-
+          
+      - name: Cache npm
+        uses: https://code.forgejo.org/actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+            
       - name: Installing npm deps
         run: |
           set -euo pipefail
