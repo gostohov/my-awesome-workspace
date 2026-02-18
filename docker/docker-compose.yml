@@ -55,10 +55,11 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: ${POSTGRES_IMAGE_TAG}
+    build:
+      context: ./postgres
+    image: my-postgres-with-init
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./postgres-init:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_DB: ${POSTGRES_ROOT_DB}
       POSTGRES_USER: ${POSTGRES_ROOT_USER}
