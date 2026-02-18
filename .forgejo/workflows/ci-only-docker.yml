@@ -24,7 +24,7 @@ jobs:
           
           # Удаляем контейнеры и volume
           docker compose down -v --remove-orphans
-          docker compose up -d --build
+          docker compose up --build
 
       - name: Wait for Keycloak to be healthy
         shell: bash
