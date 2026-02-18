@@ -181,6 +181,8 @@ services:
         condition: service_healthy
       flyway:
         condition: service_completed_successfully
+      keycloak:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-network"
