@@ -11,51 +11,50 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # - name: Ensure external docker network exists
-      #   shell: bash
-      #   run: |
-      #     docker network inspect traefik-network >/dev/null 2>&1 || docker network create traefik-network
+      - name: Ensure external docker network exists
+        shell: bash
+        run: |
+          docker network inspect traefik-network >/dev/null 2>&1 || docker network create traefik-network
 
-      # - name: Docker compose up (traefik, postgres, flyway, keycloak, spa, resource-server)
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-      #     cd docker
+      - name: Docker compose up (traefik, postgres, flyway, keycloak, spa, resource-server)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd docker
           
-      #     # Удаляем контейнеры и volume
-      #     docker compose down -v --remove-orphans
-      #     docker compose up -d --build
+          # Удаляем контейнеры и volume
+          docker compose down -v --remove-orphans
+          docker compose up -d --build
 
-      # - name: Wait for Keycloak to be healthy
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-      #     cd docker
+      - name: Wait for Keycloak to be healthy
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd docker
 
-      #     KC_ID="$(docker compose -p my-awesome-workspace ps -q keycloak)"
-      #     if [ -z "$KC_ID" ]; then
-      #       echo "Keycloak container not found"
-      #       docker compose -p my-awesome-workspace ps
-      #       exit 1
-      #     fi
+          KC_ID="$(docker compose -p my-awesome-workspace ps -q keycloak)"
+          if [ -z "$KC_ID" ]; then
+            echo "Keycloak container not found"
+            docker compose -p my-awesome-workspace ps
+            exit 1
+          fi
 
-      #     echo "Keycloak container id: $KC_ID"
-      #     echo "Waiting for health=healthy..."
+          echo "Keycloak container id: $KC_ID"
+          echo "Waiting for health=healthy..."
 
-      #     for i in $(seq 1 90); do
-      #       status="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' "$KC_ID" || true)"
-      #       if [ "$status" = "healthy" ]; then
-      #         echo "Keycloak is healthy"
-      #         exit 0
-      #       fi
-      #       echo "Attempt $i: $status"
-      #       sleep 2
-      #     done
+          for i in $(seq 1 90); do
+            status="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' "$KC_ID" || true)"
+            if [ "$status" = "healthy" ]; then
+              echo "Keycloak is healthy"
+              exit 0
+            fi
+            echo "Attempt $i: $status"
+            sleep 2
+          done
 
-      #     echo "Keycloak did not become healthy in time"
-      #     docker logs "$KC_ID" || true
-      #     exit 1
-          
+          echo "Keycloak did not become healthy in time"
+          docker logs "$KC_ID" || true
+          exit 1
       
       - name: Cache npm
         uses: https://code.forgejo.org/actions/cache@v4
@@ -71,20 +70,20 @@ jobs:
           set -euo pipefail
           npm ci --timing
 
-      # - name: Installing playwright Chromium browser
-      #   run: |
-      #     set -euo pipefail
-      #     npx playwright install --with-deps chromium
+      - name: Installing playwright Chromium browser
+        run: |
+          set -euo pipefail
+          npx playwright install --with-deps chromium
 
-      # - name: Run SPA e2e
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-      #     npx nx e2e spa
+      - name: Run SPA e2e
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx nx e2e spa
 
-      # - name: Docker compose down
-      #   if: always()
-      #   shell: bash
-      #   run: |
-      #     cd docker
-      #     docker compose down -v --remove-orphans
+      - name: Docker compose down
+        if: always()
+        shell: bash
+        run: |
+          cd docker
+          docker compose down -v --remove-orphans
