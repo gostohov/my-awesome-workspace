@@ -22,13 +22,6 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  webServer: {
-    command: 'npx nx run-many -t serve -p spa resource-server --parallel',
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    cwd: workspaceRoot,
-    ignoreHTTPSErrors: true,
-  },
   projects: [
     {
       name: 'setup',
