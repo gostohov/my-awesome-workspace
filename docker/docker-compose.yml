@@ -145,3 +145,47 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  spa:
+    build:
+      context: ..
+      dockerfile: docker/spa/Dockerfile
+    networks:
+      - traefik-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.spa.rule=Host(`${SPA_HOSTNAME}`)"
+      - "traefik.http.routers.spa.entrypoints=websecure"
+      - "traefik.http.routers.spa.tls=true"
+      - "traefik.http.services.spa.loadbalancer.server.port=80"
+  
+  resource-server:
+    build:
+      context: ..
+      dockerfile: docker/resource-server/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      KC_AUTH_SERVER_URL: ${KC_AUTH_SERVER_URL}
+      KC_REALM: ${KC_REALM}
+      KC_CLIENT_ID: ${KC_CLIENT_ID}
+      KC_SECRET: ${KC_SECRET}
+      NODE_EXTRA_CA_CERTS: "/etc/ssl/my-awesome-workspace/rootCA.crt"
+    networks:
+      - traefik-network
+    extra_hosts:
+      - "sso.my-awesome-workspace.localhost:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.api.rule=Host(`${SPA_HOSTNAME}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.services.api.loadbalancer.server.port=3000"
+    restart: unless-stopped

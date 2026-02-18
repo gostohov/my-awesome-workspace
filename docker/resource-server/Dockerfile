@@ -29,6 +29,8 @@ COPY --from=build /app/dist/apps/resource-server ./dist
 # Если приложению нужны prisma/schema и миграции в рантайме, раскомментируй:
 # COPY --from=build /app/apps/resource-server/prisma ./apps/resource-server/prisma
 
+COPY docker/traefik/dynamic/certs/rootCA.crt /etc/ssl/my-awesome-workspace/rootCA.crt
+
 # Nest обычно слушает 3000 (проверь свой main.ts)
 EXPOSE 3000
 

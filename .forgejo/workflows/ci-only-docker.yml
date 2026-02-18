@@ -11,13 +11,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Важно: у тебя в compose external network, в CI ее надо создать
       - name: Ensure external docker network exists
         shell: bash
         run: |
           docker network inspect traefik-network >/dev/null 2>&1 || docker network create traefik-network
 
-      - name: Docker compose up (traefik, postgres, flyway, keycloak)
+      - name: Docker compose up (traefik, postgres, flyway, keycloak, spa, resource-server)
         shell: bash
         run: |
           set -euo pipefail
@@ -25,7 +24,7 @@ jobs:
           
           # Удаляем контейнеры и volume
           docker compose down -v --remove-orphans
-          docker compose up -d
+          docker compose up -d --build
 
       - name: Wait for Keycloak to be healthy
         shell: bash
@@ -57,11 +56,20 @@ jobs:
           docker logs "$KC_ID" || true
           exit 1
 
+      - name: Installing npm deps
+        run: |
+          set -euo pipefail
+          npm ci
+
+      - name: Installing playwright Chromium browser
+        run: |
+          set -euo pipefail
+          npx playwright install --with-deps chromium
+
       - name: Run SPA e2e
         shell: bash
         run: |
           set -euo pipefail
-          npm i
           npx nx e2e spa
 
       - name: Docker compose down

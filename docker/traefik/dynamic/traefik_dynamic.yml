@@ -4,30 +4,3 @@ tls:
       defaultCertificate:
         certFile: /etc/traefik/dynamic/certs/my-awesome-workspace.localhost.crt
         keyFile: /etc/traefik/dynamic/certs/my-awesome-workspace.localhost.key
-
-http:
-  routers:
-    api:
-      rule: Host(`my-awesome-workspace.localhost`) && PathPrefix(`/api`)
-      entryPoints:
-        - websecure
-      service: my-awesome-workspace-resource-server
-      tls: {}
-    
-    spa:
-      rule: Host(`my-awesome-workspace.localhost`)
-      entryPoints:
-        - websecure
-      service: my-awesome-workspace-spa
-      tls: {}
-
-  services:
-    my-awesome-workspace-resource-server:
-      loadBalancer:
-        servers:
-          - url: "http://host.docker.internal:3000"
-
-    my-awesome-workspace-spa:
-      loadBalancer:
-        servers:
-          - url: "http://host.docker.internal:4200"
